@@ -8,7 +8,6 @@ function http(url){
             if(err){
                 return reject(err)
             }
-            console.log(new Date().getTime());
             return resolve(body)
 
         })

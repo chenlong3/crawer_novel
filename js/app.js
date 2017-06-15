@@ -43,7 +43,7 @@ async function req(num){
             ress.forEach((item,index)=>{
                 let title = arr[index].title;
                 console.log(arr[index]);
-                fs.writeFile('./text/'+title + '.txt', item, (err) => {
+                fs.writeFile('./text/'+title + '.html', iconv.decode(item, 'gb2312'), (err) => {
                     if (err) throw err;
                     console.log(title+'生成成功');
                 });
@@ -54,5 +54,19 @@ async function req(num){
         result.length-1 < end ?end=result.length-1:end
     }
 }
-req(10);
+http('http://www.piaotian.com/html/8/8631/5598648.html').then(function(res){
+    let _res = iconv.decode(res,'gb2312');
+    let $ = cheerio.load(_res);
+    /*fs.writeFile('test.html',res,(err)=>{
+        if(err)return;
+        console.log('成功')
+    });
+    fs.writeFile('test.txt',$('body').not(this.find()).text(),(err)=>{
+        if(err)return;
+        console.log('成功')
+    });*/
+    _res.replace(/<br>([\s\S]*)<\/div>/g,function(match,$1){
+        console.log($1)
+    })
+});
 

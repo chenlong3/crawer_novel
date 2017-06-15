@@ -35,10 +35,8 @@ async function req(num) {
         let prmire = arr.map(function (item) {
             let url = config.url + item.herf;
             let _item = http(url);
-            console.log(url);
             return _item
         });
-        console.log(1);
 
         await Promise.all(prmire).then(function (ress) {
             ress.forEach((item, index) => {
@@ -51,7 +49,8 @@ async function req(num) {
                     _str += item
                 });
                 fs.writeFile('./text/' + title + '.txt', _str, (err) => {
-                    console.log(arr[index]);
+                    if(err)throw err;
+                    console.log(title+'生成完成');
                 })
             });
             start = end + 1;

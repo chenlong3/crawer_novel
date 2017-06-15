@@ -34,16 +34,20 @@ async function req(num){
         let prmire = arr.map(function(item){
             let url = config.url+item.herf;
             let _item = http(url);
-            console.log(url);
             return _item
         });
-        console.log(1);
 
         await Promise.all(prmire).then(function (ress) {
             ress.forEach((item,index)=>{
                 let title = arr[index].title;
-                console.log(arr[index]);
-                fs.writeFile('./text/'+title + '.txt', item, (err) => {
+                let _content = iconv.decode(item,'gb2312');
+                let _result = _content.match(/<br>([\s\S]*)<\/div>\W+<!/)[0];
+                let _arrStr = _result.replace(/(\s|<br \/>|&nbsp|<br>|<\/div><!)/g,'').split(';;;;');
+                let _str = '';
+                _arrStr.forEach(function(item){
+                    _str += item
+                });
+                fs.writeFile('./text/'+title + '.txt',_str, (err) => {
                     if (err) throw err;
                     console.log(title+'生成成功');
                 });

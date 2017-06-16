@@ -16,7 +16,7 @@ async function req(num) {
         let el = $(config.node);
         el.each(function (index, ele) {
             let obj = {};
-            obj.index = index;
+            obj.index = index - 4;
             obj.herf = $(this).attr('href');
             obj.title = $(this).text();
             urls.push(obj);
@@ -42,11 +42,11 @@ async function req(num) {
             ress.forEach((item, index) => {
                 let title = arr[index].title;
                 let _content = iconv.decode(item, 'gb2312');
-                let _result = _content.match(/<br>([\s\S]*)<\/div>\W+<!/)[0];
+                let _result = _content.match(new RegExp(config.chilNode))[0];
                 let _arrStr = _result.replace(/(\s|<br \/>|&nbsp|<br>|<\/div><!)/g, '').split(';;;;');
-                let _str = '';
+                let _str = arr[index].title + '\r';
                 _arrStr.forEach(function (item) {
-                    _str += item
+                    _str += item + '\r'
                 });
                 fs.writeFile('./text/' + title + '.txt', _str, (err) => {
                     if(err)throw err;

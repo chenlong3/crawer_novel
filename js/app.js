@@ -7,7 +7,6 @@ import http from './comom'
 import config from '../config'
 import fs from 'fs'
 
-
 async function req(num) {
     function fn(res) {
         let urls = [];
@@ -18,7 +17,7 @@ async function req(num) {
             let obj = {};
             obj.index = index - 4;
             obj.herf = $(this).attr('href');
-            obj.title = $(this).text();
+            obj.title = $(this).text().replace(/\//,'-');
             urls.push(obj);
         });
         urls.splice(0, 4);
@@ -49,7 +48,7 @@ async function req(num) {
                     _str += item + '\r'
                 });
                 fs.writeFile('./text/' + title + '.txt', _str, (err) => {
-                    if(err)throw err;
+                    if(err)console.log(err, arr[index]) ;
                     console.log(title+'生成完成');
                 })
             });
@@ -60,4 +59,3 @@ async function req(num) {
     }
 }
 req(10);
-

@@ -11,4 +11,4 @@ db.once('open', function() {
     // we're connected!
     console.log('ok')
 });
-export {mongoose,db}
+export default mongoose

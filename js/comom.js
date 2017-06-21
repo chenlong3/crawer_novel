@@ -81,11 +81,11 @@ async function req(num) {
                     let _content = iconv.decode(item, 'gb2312');
                     let _result = _content.match(new RegExp(config.chilNode))[0];
                     let _arrStr = _result.replace(/(\s|<br \/>|&nbsp|<br>|<\/div>\W+<!)/g, '').split(';;;;');
-                    let _str = '\r' + arr[index].title + '\r';
+                    let _str = '<h3>' + arr[index].title + '</h3>';
                     _arrStr.forEach(function (item) {
-                        _str += item + '\r'
+                        _str += '<p>'+item + '</p>'
                     });
-                    fs.writeFile('./text/' + name + '/' + name + '/' + title + '.txt', _str, (err) => {
+                    fs.writeFile('./text/' + name + '/' + name + '/' + title + '.html', _str, (err) => {
                         if(err)console.log(err, arr[index]) ;
                         console.log(title+'生成完成',count,result.length);
                         count++;
@@ -105,12 +105,16 @@ async function req(num) {
 }
 
 function io(result,name) {
-    result.forEach(function(item){
-        let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.txt', 'utf8');
+    result.forEach(function(item,index){
+        let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
+        if(index === 0){
+            data = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Title</title></head><body>'+data
+        }
+        if(index = result.length-1){
+            data = data + '</body></html>'
+        }
         console.log('开始写入' + item.title);
-        fs.appendFileSync('./text/' + name + '/' + name + '.txt',data);
+        fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
     })
 }
-
-
 export default req

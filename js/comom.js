@@ -5,7 +5,6 @@ import request from 'request'
 import cheerio from 'cheerio'
 import iconv from 'iconv-lite'
 import novel from './mongo/db_novel'
-import config from '../config'
 import fs from 'fs'
 
 function http(url){
@@ -20,44 +19,60 @@ function http(url){
     });
 }
 
-function fn(res) {
-    let urls = [];
-    let _res = iconv.decode(res, 'gb2312');
-    let $ = cheerio.load(_res);
-    let el = $(config.node);
-    el.each(function (index, ele) {
-        let obj = {};
-        obj.index = index - 4;
-        obj.herf = $(this).attr('href');
-        obj.title = $(this).text().replace(/\//,'-');
-        urls.push(obj);
-    });
-    urls.splice(0, 4);
-    return urls
-}
 
-function save(res,urls){
-    let data = {
-        name: config.name
-    };
-    data.items = urls;
-    data.UdIndex = urls.length;
-    if(res){
-        novel.updata(res._id,data);
-        urls = urls.splice(res.UdIndex);
-    }else{
-        fs.mkdir('./text/'+data.name,function(err){
-            if(err)throw err;
+
+async function generate(num,config) {
+    function fn(res) {
+        let urls = [];
+        let _res = iconv.decode(res, 'gb2312');
+        let $ = cheerio.load(_res);
+        let el = $(config.node);
+        el.each(function (index, ele) {
+            let obj = {};
+            obj.index = index - 4;
+            obj.herf = $(this).attr('href');
+            obj.title = $(this).text().replace(/\//,'-');
+            urls.push(obj);
         });
-        fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
-            if(err)throw err;
-        });
-        novel.add(data);
+        urls.splice(0, 4);
+        return urls
     }
-    return urls
-}
 
-async function req(num) {
+    function save(res,urls){
+        let data = {
+            name: config.name
+        };
+        data.items = urls;
+        data.UdIndex = urls.length;
+        if(res){
+            novel.updata(res._id,data);
+            urls = urls.splice(res.UdIndex);
+        }else{
+            fs.mkdir('./text/'+data.name,function(err){
+                if(err)throw err;
+            });
+            fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
+                if(err)throw err;
+            });
+            novel.add(data);
+        }
+        return urls
+    }
+
+    function io(result,name) {
+        result.forEach(function(item,index){
+            let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
+            if(index === 0){
+                data = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Title</title></head><body>'+data
+            }
+            if(index = result.length-1){
+                data = data + '</body></html>'
+            }
+            console.log('开始写入' + item.title);
+            fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
+        })
+    }
+
     let name = config.name;
     let data = await http(config.url);                  //请求章节目录的网页
     let urls = await fn(data);                          //处理章节目录网页，提取章节名称等
@@ -104,17 +119,4 @@ async function req(num) {
     }
 }
 
-function io(result,name) {
-    result.forEach(function(item,index){
-        let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
-        if(index === 0){
-            data = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Title</title></head><body>'+data
-        }
-        if(index = result.length-1){
-            data = data + '</body></html>'
-        }
-        console.log('开始写入' + item.title);
-        fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
-    })
-}
-export default req
+export default generate

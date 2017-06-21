@@ -4,6 +4,7 @@
 import express from 'express'
 import router from './router'
 
+
 const app = express();
 app.use('/api/novel', router);
 /*app.get('/api/novel',function(req,res){

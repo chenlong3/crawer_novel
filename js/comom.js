@@ -6,6 +6,7 @@ import cheerio from 'cheerio'
 import iconv from 'iconv-lite'
 import novel from './mongo/db_novel'
 import fs from 'fs'
+import config from '../config'
 
 function http(url){
     return new Promise(function(resolve,reject){
@@ -63,13 +64,13 @@ async function generate(num,config) {
         result.forEach(function(item,index){
             let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
             if(index === 0){
-                data = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Title</title></head><body>'+data
+                data = '<!DOCTYPE html><html lang="zh"><head><meta charset="gb2312"><title>'+name+'</title></head><body>'+data
             }
             if(index = result.length-1){
                 data = data + '</body></html>'
             }
             console.log('开始写入' + item.title);
-            fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
+            fs.appendFileSync('./text/' + name + '/' + name + '.html',iconv.encode(data,'gb2312'));
         })
     }
 
@@ -118,5 +119,6 @@ async function generate(num,config) {
         console.log('不需要更新')
     }
 }
+generate(10,config);
 
 export default generate

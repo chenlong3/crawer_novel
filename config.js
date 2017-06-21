@@ -1,4 +1,5 @@
 export default {
+    name:'11111111',
     url:'http://www.piaotian.com/html/8/8631/',
     node:'.centent ul li a',
     chilNode:'<br>([\\s\\S]*)<\/div>\\W+<!',

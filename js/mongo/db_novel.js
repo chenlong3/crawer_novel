@@ -3,25 +3,45 @@
  */
 import mongoose from './db'
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.Types.ObjectId;
-const novelChapterSchema = new Schema({
-    title:String,
-    href: String,
-    index: Number,
-    id:ObjectId
-});
 const novelSchema = new Schema({
     name: String,
-    items: [novelChapterSchema],
+    items: [],
     UdIndex: Number,
-    id:ObjectId
 });
 let novelModel = mongoose.model('Novel',novelSchema);
-let novelEntity = new novelModel({name:'最强基因'});
-novelEntity.save(function(err){
-    console.log(err);
-});
-console.log(55555555555,novelEntity.id);
-novelModel.find(function(err,data){
-    console.log(data);
-});
+class Novel{
+    constructor(){}
+    add(data){
+        let novelEntity = new novelModel(data);
+        novelEntity.save(function (err) {
+            if(err)throw err;
+
+        });
+    }
+    query(obj){
+        return new Promise(function(resolve,reject){
+            novelModel.findOne(obj||{},function(err,res){
+                if(err){
+                    reject(err)
+                }else{
+                  resolve(res)
+                }
+            })
+        })
+
+    }
+    del(id){
+        novelModel.findById(id,function(err,res){
+            if(err)throw err;
+            res.remove({_id:id},function(err){})
+        })
+    }
+    updata(id,data){
+        novelModel.findByIdAndUpdate(id,{$set:data},function(err,person){
+            if(err)throw err;
+            console.log('已更新：',person.name)
+        });
+    }
+}
+let novel = new Novel();
+export default novel

@@ -46,20 +46,28 @@ function save(res,urls){
         novel.updata(res._id,data);
         urls = urls.splice(res.UdIndex);
     }else{
+        fs.mkdir('./text/'+data.name,function(err){
+            if(err)throw err;
+        });
+        fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
+            if(err)throw err;
+        });
         novel.add(data);
     }
     return urls
 }
 
 async function req(num) {
+    let name = config.name;
     let data = await http(config.url);                  //请求章节目录的网页
     let urls = await fn(data);                          //处理章节目录网页，提取章节名称等
-    let resDb = await novel.query({name:config.name}); //查询数据库是否有同名小说
+    let resDb = await novel.query({name:name});        //查询数据库是否有同名小说
     let result = await save(resDb,urls);                //存在同名小说更新，没有则新增
     let start = 0;
     let end = start + num;
+    let count = 0;
     if(result.length){
-        result.length - 1 < end ? end = result.length - 1 : end;
+        result.length < end ? end = result.length : end;
         for (let i = 0, len = Math.ceil(result.length / num); i < len; i++) {
             let arr = result.slice(start, end);
             let prmire = arr.map(function (item) {
@@ -73,23 +81,36 @@ async function req(num) {
                     let _content = iconv.decode(item, 'gb2312');
                     let _result = _content.match(new RegExp(config.chilNode))[0];
                     let _arrStr = _result.replace(/(\s|<br \/>|&nbsp|<br>|<\/div>\W+<!)/g, '').split(';;;;');
-                    let _str = arr[index].title + '\r';
+                    let _str = '\r' + arr[index].title + '\r';
                     _arrStr.forEach(function (item) {
                         _str += item + '\r'
                     });
-                    fs.writeFile('./text/' + title + '.txt', _str, (err) => {
+                    fs.writeFile('./text/' + name + '/' + name + '/' + title + '.txt', _str, (err) => {
                         if(err)console.log(err, arr[index]) ;
-                        console.log(title+'生成完成');
+                        console.log(title+'生成完成',count,result.length);
+                        count++;
+                        if(count >= result.length){
+                            io(result,name)
+                        }
                     })
                 });
-                start = end + 1;
+                start = end;
                 end = start + num;
-                result.length - 1 < end ? end = result.length - 1 : end
+                result.length < end ? end = result.length : end
             })
         }
     }else{
         console.log('不需要更新')
     }
 }
+
+function io(result,name) {
+    result.forEach(function(item){
+        let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.txt', 'utf8');
+        console.log('开始写入' + item.title);
+        fs.appendFileSync('./text/' + name + '/' + name + '.txt',data);
+    })
+}
+
 
 export default req

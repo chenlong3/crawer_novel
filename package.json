@@ -10,10 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "cheerio": "^1.0.0-rc.1",
+    "cookie-parser": "^1.4.3",
     "express": "^4.15.3",
     "iconv-lite": "^0.4.17",
+    "jade": "^1.11.0",
     "mongoose": "^4.10.6",
+    "morgan": "^1.8.2",
     "request": "^2.81.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-export default {
+module.exports={
     name:'最强基因',
     url:'http://www.piaotian.com/html/8/8631/',
     node:'.centent ul li a',
@@ -10,4 +10,4 @@ export default {
         port:'27017',
         db:'loong'
     }
-}
+};

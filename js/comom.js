@@ -31,7 +31,7 @@ async function generate(num,config) {
             let obj = {};
             obj.index = index - 4;
             obj.herf = $(this).attr('href');
-            obj.title = $(this).text().replace(/\//,'-');
+            obj.title = $(this).text().replace(/\/|(\*)/g,'-');
             urls.push(obj);
         });
         urls.splice(0, 4);

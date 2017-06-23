@@ -19,6 +19,20 @@ function http(url){
     });
 }
 
+function merge(result,name) {
+    result.forEach(function(item,index){
+        let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
+        if(index === 0){
+            data = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>'+name+'</title></head><body>'+data
+        }
+        if(index === result.length-1){
+            data = data + '</body></html>'
+        }
+        console.log('开始写入' + item.title);
+        fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
+    })
+}
+
 
 
 async function generate(num,config) {
@@ -59,23 +73,16 @@ async function generate(num,config) {
         return urls
     }
 
-    function io(result,name) {
-        result.forEach(function(item,index){
-            let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
-            if(index === 0){
-                data = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>'+name+'</title></head><body>'+data
-            }
-            if(index === result.length-1){
-                data = data + '</body></html>'
-            }
-            console.log('开始写入' + item.title);
-            fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
-        })
-    }
+
 
     let name = config.name;
     let data = await http(config.url);                  //请求章节目录的网页
     let urls = await fn(data);                          //处理章节目录网页，提取章节名称等
+
+
+
+
+
     let resDb = await novel.query({name:name});        //查询数据库是否有同名小说
     let result = await save(resDb,urls);                //存在同名小说更新，没有则新增
     let start = 0;
@@ -105,7 +112,7 @@ async function generate(num,config) {
                         console.log(title+'生成完成',count,result.length);
                         count++;
                         if(count >= result.length){
-                            io(result,name)
+                            merge(result,name)
                         }
                     })
                 });

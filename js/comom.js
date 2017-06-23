@@ -65,7 +65,7 @@ async function generate(num,config) {
             if(index === 0){
                 data = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>'+name+'</title></head><body>'+data
             }
-            if(index = result.length-1){
+            if(index === result.length-1){
                 data = data + '</body></html>'
             }
             console.log('开始写入' + item.title);

@@ -28,7 +28,6 @@ class Novel{
                 }
             })
         })
-
     }
     del(id){
         novelModel.findById(id,function(err,res){

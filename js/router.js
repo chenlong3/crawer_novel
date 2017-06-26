@@ -10,6 +10,9 @@ router.use(function(req, res, next) {
 });
 router.get('/api/novel',function(req,res,next){
     generate(10,req.query);
-    res.json({href:'./text/'+req.query.name+'/'+req.query.name})
+    res.json({href:'/text/'+req.query.name+'/'+req.query.name})
+});
+router.get('/text/download',function(req,res,next){
+    res.download(req.query.path)
 });
 export default router

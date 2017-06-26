@@ -4,6 +4,7 @@
 import mongoose from 'mongoose'
 import config from '../../config'
 let url = 'mongodb://' + config.mongod.user + ':' + config.mongod.pwd + '@' + config.mongod.ip + ':' + config.mongod.port + '/' +config.mongod.db;
+mongoose.Promise = global.Promise;
 mongoose.connect(url);
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

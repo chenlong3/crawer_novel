@@ -80,9 +80,6 @@ async function generate(num,config) {
     let urls = await fn(data);                          //处理章节目录网页，提取章节名称等
 
 
-
-
-
     let resDb = await novel.query({name:name});        //查询数据库是否有同名小说
     let result = await save(resDb,urls);                //存在同名小说更新，没有则新增
     let start = 0;

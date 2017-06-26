@@ -9,7 +9,6 @@ router.use(function(req, res, next) {
     next();
 });
 router.get('/api/novel',function(req,res,next){
-    console.log('111111111111',req.query);
     generate(10,req.query);
     res.json({href:'./text/'+req.query.name+'/'+req.query.name})
 });

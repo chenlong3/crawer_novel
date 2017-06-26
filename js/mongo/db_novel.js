@@ -8,19 +8,27 @@ const novelSchema = new Schema({
     items: [],
     UdIndex: Number,
 });
-let novelModel = mongoose.model('Novel',novelSchema);
+const websiteSchema = new Schema({
+    name:String,
+    url:String,
+    node:String,
+    chilNode:String
+});
 class Novel{
-    constructor(){}
+    constructor(Schema,name){
+        this.model = mongoose.model(name,Schema);
+    }
     add(data){
-        let novelEntity = new novelModel(data);
-        novelEntity.save(function (err) {
+        let Entity = new this.model(data);
+        Entity.save(function (err) {
             if(err)throw err;
 
         });
     }
     query(obj){
+        let model = this.model;
         return new Promise(function(resolve,reject){
-            novelModel.findOne(obj||{},function(err,res){
+            model.findOne(obj||{},function(err,res){
                 if(err){
                     reject(err)
                 }else{
@@ -30,17 +38,18 @@ class Novel{
         })
     }
     del(id){
-        novelModel.findById(id,function(err,res){
+        this.model.findById(id,function(err,res){
             if(err)throw err;
             res.remove({_id:id},function(err){})
         })
     }
     updata(id,data){
-        novelModel.findByIdAndUpdate(id,{$set:data},function(err,person){
+        this.model.findByIdAndUpdate(id,{$set:data},function(err,person){
             if(err)throw err;
             console.log('已更新：',person.name)
         });
     }
 }
-let novel = new Novel();
-export default novel
+let novel = new Novel(novelSchema,'Novel');
+let website = new Novel(websiteSchema,'website');
+export {novel,website}

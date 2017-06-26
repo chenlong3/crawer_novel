@@ -4,7 +4,7 @@
 import request from 'request'
 import cheerio from 'cheerio'
 import iconv from 'iconv-lite'
-import novel from './mongo/db_novel'
+import {novel,website} from './mongo/db_novel'
 import fs from 'fs'
 
 function http(url){
@@ -31,6 +31,7 @@ function merge(result,name) {
         console.log('开始写入' + item.title);
         fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
     })
+
 }
 
 

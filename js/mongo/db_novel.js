@@ -5,8 +5,10 @@ import mongoose from './db'
 const Schema = mongoose.Schema;
 const novelSchema = new Schema({
     name: String,
+    path:String,
     items: [],
     UdIndex: Number,
+    isFull:Boolean
 });
 const websiteSchema = new Schema({
     name:String,
@@ -20,10 +22,16 @@ class Novel{
     }
     add(data){
         let Entity = new this.model(data);
-        Entity.save(function (err) {
-            if(err)throw err;
+        return new Promise(function(resolve,reject){
+            Entity.save(function (err,data) {
+                if(err){
+                    reject(err)
+                }else{
+                    resolve({res: "SUCCESS",data:data})
+                }
+            });
+        })
 
-        });
     }
     query(obj){
         let model = this.model;
@@ -32,22 +40,38 @@ class Novel{
                 if(err){
                     reject(err)
                 }else{
-                  resolve(res)
+                  resolve({data:res,res:"SUCCESS"})
                 }
             })
         })
     }
     del(id){
-        this.model.findById(id,function(err,res){
-            if(err)throw err;
-            res.remove({_id:id},function(err){})
+        let model = this.model;
+        return new Promise(function(resolve,reject){
+            model.findById(id,function(err,res){
+                if(err)throw err;
+                res.remove({_id:id},function(err,data){
+                    if(err){
+                        reject(err)
+                    }else{
+                        resolve({res: "SUCCESS",data:data})
+                    }
+                })
+            })
         })
     }
     updata(id,data){
-        this.model.findByIdAndUpdate(id,{$set:data},function(err,person){
-            if(err)throw err;
-            console.log('已更新：',person.name)
-        });
+        let model = this.model;
+        return new Promise(function(resolve,reject){
+            model.findByIdAndUpdate(id,{$set:data},function(err,person){
+                if(err){
+                    reject(err)
+                }else{
+                    resolve({res:'SUCCESS',data:person})
+                }
+            });
+        })
+
     }
 }
 let novel = new Novel(novelSchema,'Novel');

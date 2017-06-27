@@ -19,7 +19,7 @@ function http(url){
     });
 }
 
-function merge(result,name) {
+function merge(result,name,id) {
     result.forEach(function(item,index){
         let data = fs.readFileSync('./text/' + name + '/' + name + '/' + item.title + '.html', 'utf8');
         if(index === 0){
@@ -30,8 +30,8 @@ function merge(result,name) {
         }
         console.log('开始写入' + item.title);
         fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
-    })
-
+    });
+    novel.updata(id,{isFull:true})
 }
 
 
@@ -82,7 +82,8 @@ async function generate(num,config) {
 
 
     let resDb = await novel.query({name:name});        //查询数据库是否有同名小说
-    let result = await save(resDb,urls);                //存在同名小说更新，没有则新增
+    let result = await save(resDb,urls);               //存在同名小说更新，没有则新增
+    let id = resDb&&resDb._id;
     let start = 0;
     let end = start + num;
     let count = 0;
@@ -110,7 +111,7 @@ async function generate(num,config) {
                         console.log(title+'生成完成',count,result.length);
                         count++;
                         if(count >= result.length){
-                            merge(result,name)
+                            merge(result,name,id)
                         }
                     })
                 });
@@ -123,5 +124,39 @@ async function generate(num,config) {
         console.log('不需要更新')
     }
 }
+function novelService(){
+    return{
+        get:function(req,res,next){
 
-export default generate
+        }
+    }
+}
+
+function websiteService (){
+    return{
+        get:function(req,res,next){
+            let obj = {};
+            Object.assign(obj,req.params,req.query);
+            website.query(obj).then(function(result){
+                res.json(result)
+            })
+        },
+        post:function(req,res,next){
+            website.add(req.body).then(function(result){
+                res.json(result)
+            })
+        },
+        del:function(req,res,next){
+            website.del(req.params.id).then(function(result){
+                res.json(result)
+            })
+        },
+        put:function (req,res,next) {
+            website.updata(req.params.id,req.body).then(function(result){
+                res.json(result)
+            })
+        }
+    }
+}
+
+export {generate,websiteService}

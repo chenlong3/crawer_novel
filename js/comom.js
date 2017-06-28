@@ -36,7 +36,7 @@ function merge(result,name,id) {
 
 
 
-async function generate(num,config) {
+async function generate(novelData,websiteData,number) {
     function fn(res) {
         let urls = [];
         let _res = iconv.decode(res, 'gb2312');
@@ -74,8 +74,13 @@ async function generate(num,config) {
         return urls
     }
 
-
-
+    let config = {
+        name:novelData.name,
+        node:websiteData.node,
+        chilNode:websiteData.chilNode,
+        url: websiteData.url+novelData.path
+    };
+    let num = number||10;
     let name = config.name;
     let data = await http(config.url);                  //请求章节目录的网页
     let urls = await fn(data);                          //处理章节目录网页，提取章节名称等
@@ -133,7 +138,10 @@ function novelService(){
                     res.json(result)
                 }else{
                     novel.add(req.query).then(function(result){
-                        res.json(result)
+                        website.query({id:req.query.websiteId}).then((results)=>{
+                            generate(res.query,results);
+                            res.json(result);
+                        }).catch((err)=>{res.json(err)});
                     }).catch((err)=>next(err))
                 }
             }).catch((err)=>next(err))

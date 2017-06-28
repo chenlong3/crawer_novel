@@ -12,7 +12,6 @@ router.get('/api/novel',novelService().get);
 router.get('/text/download',function(req,res,next){
     res.download(req.query.path)
 });
-console.log(websiteService().get);
 router.route('/api/website/:id')
     .get(websiteService().get)
     .put(websiteService().put)

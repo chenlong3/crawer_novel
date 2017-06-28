@@ -48,7 +48,7 @@ class Novel{
         return new Promise(function(resolve,reject){
             Entity.save(function (err,data) {
                 if(err){
-                    reject(err)
+                    reject(err.message)
                 }else{
                     resolve({res: "SUCCESS",data:data})
                 }
@@ -63,7 +63,7 @@ class Novel{
                 delete obj.isList;
                 model.find(obj||{},function(err,res){
                     if(err){
-                        reject(err)
+                        reject(err.message)
                     }else{
                         resolve({data:res,res:"SUCCESS"})
                     }
@@ -72,7 +72,7 @@ class Novel{
                 delete obj.isList;
                 model.findOne(obj||{},function(err,res){
                     if(err){
-                        reject(err)
+                        reject(err.message)
                     }else{
                         resolve({data:res,res:"SUCCESS"})
                     }
@@ -87,7 +87,7 @@ class Novel{
                 if(err)throw err;
                 res.remove({_id:id},function(err,data){
                     if(err){
-                        reject(err)
+                        reject(err.message)
                     }else{
                         resolve({res: "SUCCESS",data:data})
                     }
@@ -100,7 +100,7 @@ class Novel{
         return new Promise(function(resolve,reject){
             model.findByIdAndUpdate(id,{$set:data},function(err,person){
                 if(err){
-                    reject(err)
+                    reject(err.message)
                 }else{
                     resolve({res:'SUCCESS',data:person})
                 }

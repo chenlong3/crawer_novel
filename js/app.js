@@ -6,6 +6,7 @@ import path from 'path'
 import logger from 'morgan'
 import cookieParser from  'cookie-parser'
 import bodyParser from 'body-parser'
+import log from './log'
 import router from './router'
 
 
@@ -36,6 +37,7 @@ app.use(function(req, res, next) {
     next(err);
 });
 app.use(function(err, req, res, next) {
+    log.error(err);
     res.status(err.status || 500).json({err:err})
 });
 

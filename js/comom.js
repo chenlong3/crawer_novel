@@ -4,6 +4,8 @@
 import request from 'request'
 import cheerio from 'cheerio'
 import iconv from 'iconv-lite'
+import schedule from  'node-schedule'
+import log from './log'
 import {novel,website} from './mongo/db_novel'
 import fs from 'fs'
 
@@ -31,7 +33,8 @@ function merge(result,name,id) {
         console.log('开始写入' + item.title);
         fs.appendFileSync('./text/' + name + '/' + name + '.html',data);
     });
-    novel.updata(id,{isFull:true})
+    novel.updata(id,{isFull:true});
+    log.info(name+'写入成功')
 }
 
 
@@ -64,10 +67,10 @@ async function generate(novelData,websiteData,number) {
             urls = urls.splice(res.UdIndex);
         }else{
             fs.mkdir('./text/'+data.name,function(err){
-                if(err)throw err;
+                if(err)log.error(err);
             });
             fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
-                if(err)throw err;
+                if(err)log.error(err);
             });
             novel.add(data);
         }
@@ -112,8 +115,8 @@ async function generate(novelData,websiteData,number) {
                         _str += '<p>'+item + '</p>'
                     });
                     fs.writeFile('./text/' + name + '/' + name + '/' + title + '.html', _str, (err) => {
-                        if(err)console.log(err, arr[index]) ;
-                        console.log(title+'生成完成',count,result.length);
+                        if(err)log.error(err) ;
+                        log.info(title+'生成完成',count,result.length);
                         count++;
                         if(count >= result.length){
                             merge(result,name,id)
@@ -126,7 +129,7 @@ async function generate(novelData,websiteData,number) {
             })
         }
     }else{
-        console.log('不需要更新')
+        log.info('不需要更新')
     }
 }
 function novelService(){
@@ -141,7 +144,7 @@ function novelService(){
                         website.query({id:req.query.websiteId}).then((results)=>{
                             generate(res.query,results);
                             res.json(result);
-                        }).catch((err)=>{res.json(err)});
+                        }).catch((err)=>{log.error(err);res.json(err)});
                     }).catch((err)=>next(err))
                 }
             }).catch((err)=>next(err))
@@ -176,5 +179,22 @@ function websiteService (){
         }
     }
 }
+
+
+let rule = new schedule.RecurrenceRule();
+
+rule.minute = 40;
+
+let j = schedule.scheduleJob(rule, function(){
+
+    novel.query({isList:true}).then((res)=>{
+        res.forEach(function(item){
+            website.query({id:item.websiteId}).then((results)=>{
+                generate(item,results);
+            }).catch((err)=>{log.error(err);});
+        })
+    });
+});
+
 
 export {generate,websiteService,novelService}

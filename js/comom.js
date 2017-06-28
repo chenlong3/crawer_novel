@@ -127,7 +127,16 @@ async function generate(num,config) {
 function novelService(){
     return{
         get:function(req,res,next){
-
+            novel.query(req.query).then(function(result){
+                if(result.data){
+                    result.isFull&&(result.href = '/text/'+req.query.name+'/'+req.query.name);
+                    res.json(result)
+                }else{
+                    novel.add(req.query).then(function(result){
+                        res.json(result)
+                    }).catch((err)=>next(err))
+                }
+            }).catch((err)=>next(err))
         }
     }
 }
@@ -135,28 +144,29 @@ function novelService(){
 function websiteService (){
     return{
         get:function(req,res,next){
-            let obj = {};
+            let obj;
+            req.params.id ? obj = {}:obj={isList:true};
             Object.assign(obj,req.params,req.query);
             website.query(obj).then(function(result){
                 res.json(result)
-            })
+            }).catch((err)=>next(err))
         },
         post:function(req,res,next){
             website.add(req.body).then(function(result){
                 res.json(result)
-            })
+            }).catch((err)=>next(err))
         },
         del:function(req,res,next){
             website.del(req.params.id).then(function(result){
                 res.json(result)
-            })
+            }).catch((err)=>next(err))
         },
         put:function (req,res,next) {
             website.updata(req.params.id,req.body).then(function(result){
                 res.json(result)
-            })
+            }).catch((err)=>next(err))
         }
     }
 }
 
-export {generate,websiteService}
+export {generate,websiteService,novelService}

@@ -30,18 +30,29 @@ app.all('*',function (req, res, next) {
     }
 });
 app.use('/', router);
+app.use(function (req,res, next) {
+    let d = domain.create();
+    //监听domain的错误事件
+    d.on('error', function (err) {
+        logger.error(err);
+        res.statusCode = 500;
+        res.json(err);
+        d.dispose();
+    });
+
+    d.add(req);
+    d.add(res);
+    d.run(next);
+});
 app.use(function(req, res, next) {
     let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+    res.status(err.status || 500).json({err:err})
 });
+
 
 app.listen(process.env.PORT || '3000',function(err){
     if(err)console.log(err);

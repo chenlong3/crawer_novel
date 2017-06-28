@@ -4,17 +4,40 @@
 import mongoose from './db'
 const Schema = mongoose.Schema;
 const novelSchema = new Schema({
-    name: String,
-    path:String,
+    name: {
+        type:String,
+        required:true,
+        unique:true
+    },
+    path:{
+        type:String,
+        required:true
+    },
     items: [],
     UdIndex: Number,
-    isFull:Boolean
+    isFull:Boolean,
+    websiteId: {
+        type:Schema.Types.ObjectId,
+        required: true
+    }
 });
 const websiteSchema = new Schema({
-    name:String,
-    url:String,
-    node:String,
-    chilNode:String
+    name:{
+        type:String,
+        required: true
+    },
+    url:{
+        type:String,
+        required: true
+    },
+    node:{
+        type:String,
+        required: true
+    },
+    chilNode:{
+        type:String,
+        required: true
+    }
 });
 class Novel{
     constructor(Schema,name){
@@ -36,13 +59,25 @@ class Novel{
     query(obj){
         let model = this.model;
         return new Promise(function(resolve,reject){
-            model.findOne(obj||{},function(err,res){
-                if(err){
-                    reject(err)
-                }else{
-                  resolve({data:res,res:"SUCCESS"})
-                }
-            })
+            if(obj.isList){
+                delete obj.isList;
+                model.find(obj||{},function(err,res){
+                    if(err){
+                        reject(err)
+                    }else{
+                        resolve({data:res,res:"SUCCESS"})
+                    }
+                })
+            }else{
+                delete obj.isList;
+                model.findOne(obj||{},function(err,res){
+                    if(err){
+                        reject(err)
+                    }else{
+                        resolve({data:res,res:"SUCCESS"})
+                    }
+                })
+            }
         })
     }
     del(id){

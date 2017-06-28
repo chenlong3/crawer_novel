@@ -2,16 +2,13 @@
  * Created by cl on 2017/6/21.
  */
 import express from 'express'
-import {generate,websiteService} from './comom'
+import {generate,websiteService,novelService} from './comom'
 const router = express.Router();
 router.use(function(req, res, next) {
     // .. some logic here .. like any other middleware
     next();
 });
-router.get('/api/novel',function(req,res,next){
-    generate(10,req.query);
-    res.json({href:'/text/'+req.query.name+'/'+req.query.name})
-});
+router.get('/api/novel',novelService().get);
 router.get('/text/download',function(req,res,next){
     res.download(req.query.path)
 });

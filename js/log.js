@@ -7,7 +7,7 @@ let logger = new winston.Logger({
     level: 'debug',
     transports: [
         new (winston.transports.Console)(),
-        new (winston.transports.File)({filename:'allenway.log'})
+        new (winston.transports.File)({filename:'allenway.log',json:false})
     ]
 });
 export default logger

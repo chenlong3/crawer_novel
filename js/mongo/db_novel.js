@@ -42,13 +42,18 @@ const websiteSchema = new Schema({
 class Novel{
     constructor(Schema,name){
         this.model = mongoose.model(name,Schema);
+        this.error = {
+            status:600
+        }
     }
     add(data){
         let Entity = new this.model(data);
+        let error = this.error;
         return new Promise(function(resolve,reject){
             Entity.save(function (err,data) {
                 if(err){
-                    reject(err.message)
+                    error.message = err.message;
+                    reject(error)
                 }else{
                     resolve({res: "SUCCESS",data:data})
                 }
@@ -58,12 +63,14 @@ class Novel{
     }
     query(obj){
         let model = this.model;
+        let error = this.error;
         return new Promise(function(resolve,reject){
             if(obj.isList){
                 delete obj.isList;
                 model.find(obj||{},function(err,res){
                     if(err){
-                        reject(err.message)
+                        error.message = err.message;
+                        reject(error)
                     }else{
                         resolve({data:res,res:"SUCCESS"})
                     }
@@ -72,7 +79,8 @@ class Novel{
                 delete obj.isList;
                 model.findOne(obj||{},function(err,res){
                     if(err){
-                        reject(err.message)
+                        error.message = err.message;
+                        reject(error)
                     }else{
                         resolve({data:res,res:"SUCCESS"})
                     }
@@ -82,12 +90,14 @@ class Novel{
     }
     del(id){
         let model = this.model;
+        let error = this.error;
         return new Promise(function(resolve,reject){
             model.findById(id,function(err,res){
                 if(err)throw err;
                 res.remove({_id:id},function(err,data){
                     if(err){
-                        reject(err.message)
+                        error.message = err.message;
+                        reject(error)
                     }else{
                         resolve({res: "SUCCESS",data:data})
                     }
@@ -97,10 +107,12 @@ class Novel{
     }
     updata(id,data){
         let model = this.model;
+        let error = this.error;
         return new Promise(function(resolve,reject){
             model.findByIdAndUpdate(id,{$set:data},function(err,person){
                 if(err){
-                    reject(err.message)
+                    error.message = err.message;
+                    reject(error)
                 }else{
                     resolve({res:'SUCCESS',data:person})
                 }

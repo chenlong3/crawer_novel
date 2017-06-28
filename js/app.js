@@ -37,8 +37,11 @@ app.use(function(req, res, next) {
     next(err);
 });
 app.use(function(err, req, res, next) {
-    log.error(err);
-    res.status(err.status || 500).json({err:err})
+    log.error(err.message);
+    res.status(err.status || 500).json({
+        error:err,
+        res:"FAIL"
+    })
 });
 
 app.listen(process.env.PORT || '3000',function(err){

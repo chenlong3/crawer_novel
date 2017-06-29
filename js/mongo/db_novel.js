@@ -24,7 +24,8 @@ const novelSchema = new Schema({
 const websiteSchema = new Schema({
     name:{
         type:String,
-        required: true
+        required: true,
+        unique:true
     },
     url:{
         type:String,
@@ -46,16 +47,48 @@ class Novel{
             status:600
         }
     }
+    toClient(obj){
+        if(obj){
+            if(obj instanceof Array){
+                obj = obj.map(function(item){
+                    let _obj = item.toObject();
+                    _obj._id&&(_obj.id = _obj._id);
+                     delete _obj._id;
+                     delete _obj.__v;
+                    return _obj
+                });
+            }else{
+                obj = obj.toObject();
+                obj._id&&(obj.id = obj._id);
+                delete obj._id;
+                delete obj.__v;
+            }
+            return obj
+        }else{
+            return {}
+        }
+    }
+    toDb(obj){
+        if(obj){
+            obj.id&&(obj._id = obj.id);
+            delete obj.id;
+            delete obj.isList;
+            return obj
+        }else{
+            return {}
+        }
+    }
     add(data){
         let Entity = new this.model(data);
         let error = this.error;
+        let toClient = this.toClient;
         return new Promise(function(resolve,reject){
             Entity.save(function (err,data) {
                 if(err){
                     error.message = err.message;
                     reject(error)
                 }else{
-                    resolve({res: "SUCCESS",data:data})
+                    resolve({res: "SUCCESS",data:toClient(data)})
                 }
             });
         })
@@ -64,25 +97,26 @@ class Novel{
     query(obj){
         let model = this.model;
         let error = this.error;
+        let toClient = this.toClient;
+        let toDb = this.toDb;
         return new Promise(function(resolve,reject){
-            if(obj.isList){
-                delete obj.isList;
-                model.find(obj||{},function(err,res){
+            if(!obj||obj.isList){
+                model.find(toDb(obj)||{},function(err,res){
                     if(err){
                         error.message = err.message;
                         reject(error)
                     }else{
-                        resolve({data:res,res:"SUCCESS"})
+                        resolve({data:toClient(res),res:"SUCCESS"})
                     }
                 })
             }else{
-                delete obj.isList;
-                model.findOne(obj||{},function(err,res){
+                console.log(2,toDb(obj));
+                model.findOne(toDb(obj)||{},function(err,res){
                     if(err){
                         error.message = err.message;
                         reject(error)
                     }else{
-                        resolve({data:res,res:"SUCCESS"})
+                        resolve({data:toClient(res),res:"SUCCESS"})
                     }
                 })
             }
@@ -91,6 +125,7 @@ class Novel{
     del(id){
         let model = this.model;
         let error = this.error;
+        let toClient = this.toClient;
         return new Promise(function(resolve,reject){
             model.findById(id,function(err,res){
                 if(err)throw err;
@@ -99,7 +134,7 @@ class Novel{
                         error.message = err.message;
                         reject(error)
                     }else{
-                        resolve({res: "SUCCESS",data:data})
+                        resolve({res: "SUCCESS",data:toClient(data)})
                     }
                 })
             })
@@ -108,13 +143,14 @@ class Novel{
     updata(id,data){
         let model = this.model;
         let error = this.error;
+        let toClient = this.toClient;
         return new Promise(function(resolve,reject){
             model.findByIdAndUpdate(id,{$set:data},function(err,person){
                 if(err){
                     error.message = err.message;
                     reject(error)
                 }else{
-                    resolve({res:'SUCCESS',data:person})
+                    resolve({res:'SUCCESS',data:toClient(person)})
                 }
             });
         })

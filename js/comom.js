@@ -132,21 +132,29 @@ async function generate(novelData,websiteData,number) {
         log.info('不需要更新')
     }
 }
-function novelService(){
+/*function novelService(){
     return{
         get:function(req,res,next){
-            novel.query(req.query).then(function(result){
-                if(result.data){
-                    result.isFull&&(result.href = '/text/'+req.query.name+'/'+req.query.name);
-                    res.json(result)
-                }else{
-                    novel.add(req.query).then(function(result){
-                        website.query({id:req.query.websiteId}).then((results)=>{
-                            generate(res.query,results);
-                            res.json(result);
-                        }).catch((err)=>{log.error(err);res.json(err)});
-                    }).catch((err)=>next(err))
-                }
+            let obj;
+            req.params.id ? obj = {}:obj={isList:true};
+            Object.assign(obj,req.params,req.query);
+            novel.query(obj).then(function(result){
+                res.json(result)
+            }).catch((err)=>next(err))
+        },
+        post:function(req,res,next){
+            novel.add(req.body).then(function(result){
+                res.json(result)
+            }).catch((err)=>next(err))
+        },
+        del:function(req,res,next){
+            novel.del(req.params.id).then(function(result){
+                res.json(result)
+            }).catch((err)=>next(err))
+        },
+        put:function (req,res,next) {
+            novel.updata(req.params.id,req.body).then(function(result){
+                res.json(result)
             }).catch((err)=>next(err))
         }
     }
@@ -178,8 +186,42 @@ function websiteService (){
             }).catch((err)=>next(err))
         }
     }
-}
+}*/
 
+class Service {
+    constructor(model){
+        this.model = model;
+    }
+    print(){
+        console.log(this.model)
+    }
+    get(req,res,next){
+        console.log(this);
+        let obj;
+        req.params.id ? obj = {}:obj={isList:true};
+        Object.assign(obj,req.params,req.query);
+        this.model.query(obj).then(function(result){
+            res.json(result)
+        }).catch((err)=>next(1111))
+    }
+    post(req,res,next){
+        this.model.add(req.body).then(function(result){
+            res.json(result)
+        }).catch((err)=>next(err))
+    }
+    del(req,res,next){
+        this.model.del(req.params.id).then(function(result){
+            res.json(result)
+        }).catch((err)=>next(err))
+    }
+    put(req,res,next) {
+        this.model.updata(req.params.id,req.body).then(function(result){
+            res.json(result)
+        }).catch((err)=>next(err))
+    }
+}
+let websiteService = new Service(website);
+let novelService = new Service(novel);
 
 let rule = new schedule.RecurrenceRule();
 

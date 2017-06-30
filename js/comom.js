@@ -11,12 +11,16 @@ import fs from 'fs'
 
 function http(url){
     return new Promise(function(resolve,reject){
+        let startTime = new Date().getTime();
+        log.info('开始请求:'+ url);
         request.get({url:url,encoding:null},function(err, res, body){
+            let endTime = new Date().getTime();
             if(err){
+                log.error(url+':请求失败'+ 'time:'+(endTime - startTime));
                 return reject(err)
             }
+            log.info(url+':请求成功'+ 'time:'+(endTime - startTime));
             return resolve(body)
-
         })
     });
 }
@@ -63,14 +67,30 @@ async function generate(novelData,websiteData,number) {
         data.items = urls;
         data.UdIndex = urls.length;
         if(res){
-            novel.updata(res._id,data);
+            novel.updata(res.id,data);
             urls = urls.splice(res.UdIndex);
+            fs.readdir('./text',function(err,files){
+                if(err)throw err;
+                let _rx = new RegExp(data.name);
+                if(!_rx.test(files)){
+                    fs.mkdir('./text/'+data.name,function(err){
+                        if(err)log.error(err);
+                        log.info('创建目录/text/'+data.name)
+                    });
+                    fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
+                        if(err)log.error(err);
+                        log.info('创建目录/text/'+data.name + '/' + data.name)
+                    });
+                }
+            });
         }else{
             fs.mkdir('./text/'+data.name,function(err){
                 if(err)log.error(err);
+                log.info('创建目录/text/'+data.name)
             });
             fs.mkdir('./text/'+data.name + '/' + data.name,function(err){
                 if(err)log.error(err);
+                log.info('创建目录/text/'+data.name + '/' + data.name)
             });
             novel.add(data);
         }
@@ -91,13 +111,15 @@ async function generate(novelData,websiteData,number) {
 
     let resDb = await novel.query({name:name});        //查询数据库是否有同名小说
     let result = await save(resDb,urls);               //存在同名小说更新，没有则新增
-    let id = resDb&&resDb._id;
+    let id = resDb&&resDb.id;
     let start = 0;
     let end = start + num;
     let count = 0;
+    log.info('开始更新'+ config.name);
     if(result.length){
         result.length < end ? end = result.length : end;
         for (let i = 0, len = Math.ceil(result.length / num); i < len; i++) {
+            log.info('开始循环写入',i,len);
             let arr = result.slice(start, end);
             let prmire = arr.map(function (item) {
                 let url = config.url + item.herf;
@@ -230,13 +252,19 @@ rule.minute = 40;
 let j = schedule.scheduleJob(rule, function(){
 
     novel.query({isList:true}).then((res)=>{
-        res.forEach(function(item){
+        res.data.forEach(function(item){
             website.query({id:item.websiteId}).then((results)=>{
-                generate(item,results);
+                generate(item,results.data);
             }).catch((err)=>{log.error(err);});
         })
     });
 });
 
-
+novel.query({isList:true}).then((res)=>{
+    res.data.forEach(function(item){
+        website.query({id:item.websiteId}).then((results)=>{
+            generate(item,results.data);
+        }).catch((err)=>{log.error(err);});
+    })
+});
 export {websiteService,novelService}

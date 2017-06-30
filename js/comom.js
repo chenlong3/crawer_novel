@@ -191,18 +191,18 @@ function websiteService (){
 class Service {
     constructor(model){
         this.model = model;
-    }
-    print(){
-        console.log(this.model)
+        this.get = this.get.bind(this);
+        this.post = this.post.bind(this);
+        this.put = this.put.bind(this);
+        this.del = this.del.bind(this);
     }
     get(req,res,next){
-        console.log(this);
         let obj;
         req.params.id ? obj = {}:obj={isList:true};
         Object.assign(obj,req.params,req.query);
         this.model.query(obj).then(function(result){
             res.json(result)
-        }).catch((err)=>next(1111))
+        }).catch((err)=>next(err))
     }
     post(req,res,next){
         this.model.add(req.body).then(function(result){
@@ -239,4 +239,4 @@ let j = schedule.scheduleJob(rule, function(){
 });
 
 
-export {generate,websiteService,novelService}
+export {websiteService,novelService}

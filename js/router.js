@@ -2,7 +2,7 @@
  * Created by cl on 2017/6/21.
  */
 import express from 'express'
-import {generate,websiteService,novelService} from './comom'
+import {websiteService,novelService} from './comom'
 const router = express.Router();
 router.use(function(req, res, next) {
     // .. some logic here .. like any other middleware

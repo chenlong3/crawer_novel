@@ -19,7 +19,8 @@ const novelSchema = new Schema({
     websiteId: {
         type:Schema.Types.ObjectId,
         required: true
-    }
+    },
+    upDateAt:Date
 });
 const websiteSchema = new Schema({
     name:{
@@ -38,7 +39,8 @@ const websiteSchema = new Schema({
     chilNode:{
         type:String,
         required: true
-    }
+    },
+    upDateAt:Date
 });
 class Novel{
     constructor(Schema,name){
@@ -78,8 +80,14 @@ class Novel{
             return {}
         }
     }
+    saveDb(data){
+        if(typeof data === 'object'){
+            data.upDateAt = new Date();
+        }
+        return data
+    }
     add(data){
-        let Entity = new this.model(data);
+        let Entity = new this.model(this.saveDb(data));
         let error = this.error;
         let toClient = this.toClient;
         return new Promise(function(resolve,reject){
@@ -110,7 +118,6 @@ class Novel{
                     }
                 })
             }else{
-                console.log(2,toDb(obj));
                 model.findOne(toDb(obj)||{},function(err,res){
                     if(err){
                         error.message = err.message;
@@ -144,8 +151,9 @@ class Novel{
         let model = this.model;
         let error = this.error;
         let toClient = this.toClient;
+        let saveDb = this.saveDb;
         return new Promise(function(resolve,reject){
-            model.findByIdAndUpdate(id,{$set:data},function(err,person){
+            model.findByIdAndUpdate(id,{$set:saveDb(data)},function(err,person){
                 if(err){
                     error.message = err.message;
                     reject(error)

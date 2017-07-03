@@ -3,6 +3,7 @@
  */
 import {novel,website} from './mongo/db_novel'
 import {http,toHash,copy} from './comom'
+import merge from './generate/multiple'
 import pars from './generate/parsing'
 import generate from './generate/single'
 
@@ -80,8 +81,10 @@ async function addNovel(req,res,next){
     Object.assign(body,result);
     config.items = copy(urls);
     await generate(config,20);
+    await merge(body);
     let novelData = await novel.query({name:config.name});
-    await novel.updata(novelData.data.id,body)
+    await novel.updata(novelData.data.id,body);
 }
 novelService.observe('post',addNovel);
+
 export {websiteService,novelService}

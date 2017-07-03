@@ -4,14 +4,14 @@
 import express from 'express'
 import {websiteService,novelService} from './service'
 const router = express.Router();
+
 router.use(function(req, res, next) {
     // .. some logic here .. like any other middleware
     next();
 });
-router.get('/text/download',function(req,res,next){
-    res.download(req.query.path)
+router.get('/text/download/:hash',function(req,res,next){
+    res.download('./text/single/'+req.params.hash+'.html')
 });
-
 router.route('/api/novel/:id')
     .get(novelService.get)
     .put(novelService.put)

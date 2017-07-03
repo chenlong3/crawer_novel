@@ -15,7 +15,6 @@ async function generate(config,number){
     let count = 0;
     let hash = toHash(config.name);
     addFolder('./text/multiple/' + hash);
-    log.info('开始更新'+ config.name);
 
     result.length < end ? end = result.length : end;
 
@@ -42,7 +41,6 @@ async function generate(config,number){
                     if (err) log.error(err);
 
                     count++;
-                    log.info(title + '生成完成',count + '/' + result.length);
                 })
             });
 
@@ -51,9 +49,7 @@ async function generate(config,number){
             result.length < end ? end = result.length : end
         })
     }
-    await function () {
-        console.log('循环写入完成')
-    }
+    await log.info('循环写入完成')
 }
 
 export default generate

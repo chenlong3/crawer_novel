@@ -2,6 +2,7 @@
  * Created by cl on 2017/6/30.
  */
 import {novel,website} from './mongo/db_novel'
+import {http,toHash,copy} from './comom'
 import pars from './generate/parsing'
 import generate from './generate/single'
 
@@ -60,18 +61,27 @@ class Service {
 }
 let websiteService = new Service(website);
 let novelService = new Service(novel);
-function addNovel(req,res,next){
+async function addNovel(req,res,next){
    let body = req.body;
-   website.query({id:body.websiteId}).then((websiteDd)=>{
-       let websiteData = websiteDd.data;
-       let config = {
-           name: body.name,
-           node: websiteData.node,
-           chilNode: websiteData.chilNode,
-           url: websiteData.url + body.path
-       };
-
-   })
+   let websiteDd = await website.query({id:body.websiteId});
+   let config = {
+        name: body.name,
+        node: websiteDd.data.node,
+        chilNode: websiteDd.data.chilNode,
+        url: websiteDd.data.url + body.path
+    };
+    let data = await http(config.url);
+    let urls = await pars.chapter(data,config.node);
+    let result = {
+        items:copy(urls),
+        isFull:true,
+        hash:toHash(body.name)
+    };
+    Object.assign(body,result);
+    config.items = copy(urls);
+    await generate(config,20);
+    let novelData = await novel.query({name:config.name});
+    await novel.updata(novelData.data.id,body)
 }
-novelService.observe('posh',addNovel);
+novelService.observe('post',addNovel);
 export {websiteService,novelService}

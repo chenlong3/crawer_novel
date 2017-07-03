@@ -4,27 +4,30 @@
 import cheerio from 'cheerio'
 import iconv from 'iconv-lite'
 import {toHash} from '../comom'
+import log from '../log'
 
 class Parsing {
     constructor(){
 
     }
-    chapter(res){
+    chapter(res,node){
+        log.info('开始解析章节');
         let urls = [];
         let _res = iconv.decode(res, 'gb2312');
         let $ = cheerio.load(_res);
-        let el = $(config.node);
+        let el = $(node);
         let _hash = 0;
         el.each(function (index, ele) {
             let obj = {};
-            _hash = (index === 3)?toHash(obj.title):_hash+1;
             obj.index = index - 4;
             obj.herf = $(this).attr('href');
             obj.title = $(this).text();
+            _hash = (index === 3)?toHash(obj.title):_hash+1;
             obj.hash = _hash;
             urls.push(obj);
         });
         urls.splice(0, 4);
+        log.info('解析章节完成');
         return urls
     }
     content(title, content, rule) {

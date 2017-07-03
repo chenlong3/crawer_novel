@@ -20,6 +20,7 @@ const novelSchema = new Schema({
         type:Schema.Types.ObjectId,
         required: true
     },
+    hash:Number,
     upDateAt:Date
 });
 const websiteSchema = new Schema({
